@@ -3,7 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { apiGet, fmt, fmtBig, pctClass, type Quote } from "../../lib/api";
-import { useTerminal } from "../../store/terminal";
+import { FEATURED_CRYPTO_ASSETS, useTerminal } from "../../store/terminal";
 import Flash from "../Flash";
 
 export default function WatchlistWidget() {
@@ -17,11 +17,29 @@ export default function WatchlistWidget() {
     queryKey: ["watchlist", watchlist.join(",")],
     queryFn: () => apiGet<Quote[]>(`/api/quotes?symbols=${watchlist.join(",")}`),
     enabled: watchlist.length > 0,
-    refetchInterval: 1_000,
+    refetchInterval: 30_000,
   });
 
   return (
     <div>
+      <div className="flex flex-wrap gap-1 p-1 border-b border-[var(--border)]">
+        <span className="dim text-[10px] self-center mr-1">FOCUS</span>
+        {FEATURED_CRYPTO_ASSETS.map((asset) => {
+          const enabled = watchlist.includes(asset.symbol);
+          return (
+            <button
+              key={asset.symbol}
+              type="button"
+              title={asset.description}
+              aria-pressed={enabled}
+              className={`term-btn ${enabled ? "active" : ""}`}
+              onClick={() => (enabled ? removeFromWatchlist(asset.symbol) : addToWatchlist(asset.symbol))}
+            >
+              {enabled ? "●" : "○"} {asset.symbol}
+            </button>
+          );
+        })}
+      </div>
       <form
         className="flex gap-1 p-1"
         onSubmit={(e) => {

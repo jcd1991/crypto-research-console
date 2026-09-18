@@ -31,6 +31,13 @@ export type WidgetInstance = {
 
 export type LayoutItem = { i: string; x: number; y: number; w: number; h: number };
 
+export const FEATURED_CRYPTO_ASSETS = [
+  { symbol: "BTC", name: "Bitcoin", description: "Digital-gold style store of value." },
+  { symbol: "ETH", name: "Ethereum", description: "Smart-contract and decentralized-app platform." },
+  { symbol: "XRP", name: "XRP", description: "Fast, low-cost cross-border transfer asset." },
+  { symbol: "SOL", name: "Solana", description: "High-speed blockchain platform." },
+] as const;
+
 type TerminalState = {
   activeSymbol: string;
   widgets: WidgetInstance[];

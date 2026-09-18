@@ -3,7 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { apiGet, fmt, fmtBig, pctClass } from "../../lib/api";
 import Flash from "../Flash";
-import { useTerminal } from "../../store/terminal";
+import { FEATURED_CRYPTO_ASSETS, useTerminal } from "../../store/terminal";
 
 type CryptoRow = {
   id: string; symbol: string; name: string; price: number;
@@ -31,10 +31,13 @@ function Sparkline({ data }: { data: number[] }) {
 
 export default function CryptoWidget() {
   const setActiveSymbol = useTerminal((s) => s.setActiveSymbol);
+  const watchlist = useTerminal((s) => s.watchlist);
+  const addToWatchlist = useTerminal((s) => s.addToWatchlist);
+  const removeFromWatchlist = useTerminal((s) => s.removeFromWatchlist);
   const { data = [], error } = useQuery({
     queryKey: ["crypto"],
     queryFn: () => apiGet<CryptoRow[]>("/api/crypto"),
-    refetchInterval: 1_000,
+    refetchInterval: 30_000,
   });
   const { data: global } = useQuery({
     queryKey: ["crypto-global"],
@@ -46,6 +49,24 @@ export default function CryptoWidget() {
 
   return (
     <div>
+      <div className="flex flex-wrap gap-1 p-1 border-b border-[var(--border)]">
+        <span className="dim text-[10px] self-center mr-1">FOCUS</span>
+        {FEATURED_CRYPTO_ASSETS.map((asset) => {
+          const enabled = watchlist.includes(asset.symbol);
+          return (
+            <button
+              key={asset.symbol}
+              type="button"
+              title={asset.description}
+              aria-pressed={enabled}
+              className={`term-btn ${enabled ? "active" : ""}`}
+              onClick={() => (enabled ? removeFromWatchlist(asset.symbol) : addToWatchlist(asset.symbol))}
+            >
+              {enabled ? "●" : "○"} {asset.symbol}
+            </button>
+          );
+        })}
+      </div>
       {global && (
         <div className="flex gap-4 px-2 py-1 border-b border-[var(--border)] dim">
           <span>Total MCap <span className="text-[var(--text)]">{fmtBig(global.totalMarketCap)}</span></span>

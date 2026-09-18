@@ -12,7 +12,7 @@ export default function QuoteWidget({ widget }: { widget: WidgetInstance }) {
   const { data, error } = useQuery({
     queryKey: ["quote", symbol],
     queryFn: async () => (await apiGet<Quote[]>(`/api/quotes?symbols=${symbol}`))[0],
-    refetchInterval: 1_000,
+    refetchInterval: 30_000,
   });
   // FINRA's Reg SHO file only updates once a day (next-morning), so no point polling it fast.
   const { data: shortVol } = useQuery({

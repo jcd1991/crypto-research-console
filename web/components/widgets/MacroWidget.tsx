@@ -17,7 +17,7 @@ export default function MacroWidget() {
   const { data, error } = useQuery({
     queryKey: ["macro"],
     queryFn: () => apiGet<MacroData>("/api/macro"),
-    refetchInterval: 1_000,
+    refetchInterval: 30_000,
   });
 
   if (error) return <div className="p-2 down">Error: {(error as Error).message}</div>;

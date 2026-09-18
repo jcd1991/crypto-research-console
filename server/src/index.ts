@@ -6,6 +6,7 @@ import { aiRouter } from "./routes/ai.js";
 import { allStats } from "./providers/registry.js";
 import { requireApiKey } from "./auth.js";
 import { rateLimit } from "./rateLimit.js";
+import { labRouter } from "./routes/lab.js";
 
 const app = express();
 
@@ -35,6 +36,7 @@ app.use(express.json());
 // hundreds of outbound calls per request — see getQuotes) fast enough to get
 // this deployment's IP rate-limited or banned by Nasdaq/Yahoo/Stooq/SEC.
 app.use("/api", rateLimit({ windowMs: 60_000, max: 240 }), marketRouter);
+app.use("/api/lab", rateLimit({ windowMs: 60_000, max: 120 }), labRouter);
 // Portfolio data and the paid AI endpoint require a shared secret; see auth.ts.
 app.use("/api/portfolios", requireApiKey, portfolioRouter);
 app.use(
@@ -59,5 +61,5 @@ const PORT = Number(process.env.API_PORT ?? 4000);
 // API_KEY + WEB_ORIGIN) to intentionally expose it beyond this machine.
 const HOST = process.env.API_HOST ?? "127.0.0.1";
 app.listen(PORT, HOST, () => {
-  console.log(`OpenTerminal API listening on http://${HOST}:${PORT}`);
+  console.log(`Crypto Research Console API listening on http://${HOST}:${PORT}`);
 });

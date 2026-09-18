@@ -3,7 +3,7 @@ import "./globals.css";
 import Providers from "./providers";
 
 export const metadata: Metadata = {
-  title: "OpenTerminal",
+  title: "Crypto Research Console",
   description: "Bloomberg-style financial terminal on free data sources",
 };
 

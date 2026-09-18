@@ -1,5 +1,5 @@
 {
-  "name": "openterminal",
+  "name": "crypto-research-console",
   "private": true,
   "workspaces": ["server", "web"],
   "overrides": {

@@ -18,7 +18,9 @@ export type WidgetType =
   | "calendar"
   | "insider"
   | "tv"
-  | "recap";
+  | "recap"
+  | "crypto-regime"
+  | "strategy-lab";
 
 export type WidgetInstance = {
   id: string;
@@ -53,6 +55,8 @@ const DEFAULT_WIDGETS: WidgetInstance[] = [
   { id: "w-watchlist", type: "watchlist", linked: false },
   { id: "w-news", type: "news", linked: true },
   { id: "w-macro", type: "macro", linked: false },
+  { id: "w-regime", type: "crypto-regime", linked: false },
+  { id: "w-strategy-lab", type: "strategy-lab", linked: false },
 ];
 
 const DEFAULT_LAYOUT: LayoutItem[] = [
@@ -61,6 +65,8 @@ const DEFAULT_LAYOUT: LayoutItem[] = [
   { i: "w-watchlist", x: 7, y: 6, w: 5, h: 6 },
   { i: "w-news", x: 0, y: 12, w: 7, h: 7 },
   { i: "w-macro", x: 7, y: 12, w: 5, h: 7 },
+  { i: "w-regime", x: 0, y: 19, w: 6, h: 9 },
+  { i: "w-strategy-lab", x: 6, y: 19, w: 6, h: 12 },
 ];
 
 const SIZE_BY_TYPE: Record<WidgetType, { w: number; h: number }> = {
@@ -79,6 +85,8 @@ const SIZE_BY_TYPE: Record<WidgetType, { w: number; h: number }> = {
   insider: { w: 7, h: 9 },
   tv: { w: 6, h: 11 },
   recap: { w: 5, h: 12 },
+  "crypto-regime": { w: 6, h: 9 },
+  "strategy-lab": { w: 6, h: 12 },
 };
 
 export const useTerminal = create<TerminalState>()(
@@ -122,7 +130,7 @@ export const useTerminal = create<TerminalState>()(
       removeFromWatchlist: (s) => set((st) => ({ watchlist: st.watchlist.filter((x) => x !== s) })),
       resetWorkspace: () => set({ widgets: DEFAULT_WIDGETS, layout: DEFAULT_LAYOUT }),
     }),
-    { name: "openterminal-workspace" }
+    { name: "crypto-research-console-workspace" }
   )
 );
 

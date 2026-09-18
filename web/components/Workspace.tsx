@@ -20,6 +20,8 @@ import CalendarWidget from "./widgets/CalendarWidget";
 import InsiderWidget from "./widgets/InsiderWidget";
 import TvWidget from "./widgets/TvWidget";
 import RecapWidget from "./widgets/RecapWidget";
+import CryptoRegimeWidget from "./widgets/CryptoRegimeWidget";
+import StrategyLabWidget from "./widgets/StrategyLabWidget";
 
 const Grid = WidthProvider(GridLayout);
 
@@ -40,6 +42,8 @@ function WidgetBody({ widget }: { widget: WidgetInstance }) {
     case "insider": return <InsiderWidget widget={widget} />;
     case "tv": return <TvWidget />;
     case "recap": return <RecapWidget />;
+    case "crypto-regime": return <CryptoRegimeWidget />;
+    case "strategy-lab": return <StrategyLabWidget />;
   }
 }
 
@@ -94,6 +98,7 @@ const TITLES: Record<string, string> = {
   heatmap: "Heatmap", screener: "Screener", crypto: "Crypto",
   macro: "Macro / Indexes", options: "Option Chain", portfolio: "Portfolio", ai: "AI Assistant",
   calendar: "Calendar", insider: "Insider Transactions", tv: "Live TV", recap: "Market Recap",
+  "crypto-regime": "Crypto Regime", "strategy-lab": "Strategy Lab",
 };
 
 export default function Workspace() {

@@ -1,8 +1,8 @@
 <div align="center">
 
-# OpenTerminal
+# Crypto Research Console
 
-**A Terminal‑style workspace for the rest of us — built entirely on free, public market data.**
+**An OpenTerminal-derived workspace for inspecting crypto strategy research, regimes, trades, and risk.**
 
 Dark. Dense. Keyboard‑driven. Zero paid API keys, zero subscriptions.
 
@@ -23,7 +23,7 @@ Dark. Dense. Keyboard‑driven. Zero paid API keys, zero subscriptions.
 
 <br/>
 
-## Why OpenTerminal?
+## Why this console?
 
 Real trading terminals cost **$2,000+ a month**. Most retail dashboards either lock the good stuff behind a paywall or run on a single flaky data source that breaks the moment you actually need it.
 
@@ -115,8 +115,8 @@ No paid API, no keys, and no single point of failure — every endpoint has a fa
 ## 🚀 Quick start
 
 ```bash
-git clone https://github.com/ErTasselli/openterminal.git
-cd openterminal
+git clone https://github.com/jcd1991/crypto-research-console.git
+cd crypto-research-console
 npm install
 npm run dev
 ```
@@ -125,6 +125,24 @@ npm run dev
 - API health → **http://localhost:4000/api/status**
 
 That's it — no `.env` file required to get a fully working terminal.
+
+### Market Behavior Lab
+
+This public companion adds a read-only research lane for
+[Market Behavior Lab](https://github.com/jcd1991/market-behavior-lab). The lab
+exports normalized Freqtrade artifacts; this console reads them without
+embedding Python or Freqtrade in the TypeScript UI.
+
+```bash
+cp .env.example .env
+export LAB_ARTIFACT_ROOT=/absolute/path/to/market-behavior-lab/research/runs
+npm run dev
+```
+
+The Crypto Regime and Strategy Lab panels use UTC and 24/7 market semantics,
+preserve spot/perpetual pair syntax, and display source badges. The optional
+Freqtrade monitor is localhost-only and read-only. See
+[`docs/market-behavior-lab.md`](docs/market-behavior-lab.md).
 
 ### Optional: AI assistant
 

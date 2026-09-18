@@ -59,6 +59,9 @@ const DEFAULT_WIDGETS: WidgetInstance[] = [
   { id: "w-strategy-lab", type: "strategy-lab", linked: false },
 ];
 
+const DEFAULT_ACTIVE_SYMBOL = "BTC";
+const DEFAULT_WATCHLIST = ["BTC", "ETH", "SOL", "BNB", "XRP", "ADA", "DOGE", "AVAX"];
+
 const DEFAULT_LAYOUT: LayoutItem[] = [
   { i: "w-chart", x: 0, y: 0, w: 7, h: 12 },
   { i: "w-quote", x: 7, y: 0, w: 5, h: 6 },
@@ -92,10 +95,10 @@ const SIZE_BY_TYPE: Record<WidgetType, { w: number; h: number }> = {
 export const useTerminal = create<TerminalState>()(
   persist(
     (set) => ({
-      activeSymbol: "AAPL",
+      activeSymbol: DEFAULT_ACTIVE_SYMBOL,
       widgets: DEFAULT_WIDGETS,
       layout: DEFAULT_LAYOUT,
-      watchlist: ["AAPL", "MSFT", "NVDA", "TSLA", "AMZN", "GOOGL", "META", "SPY"],
+      watchlist: DEFAULT_WATCHLIST,
       commandOpen: false,
       setActiveSymbol: (s) => set({ activeSymbol: s.toUpperCase() }),
       setCommandOpen: (open) => set({ commandOpen: open }),
@@ -130,7 +133,20 @@ export const useTerminal = create<TerminalState>()(
       removeFromWatchlist: (s) => set((st) => ({ watchlist: st.watchlist.filter((x) => x !== s) })),
       resetWorkspace: () => set({ widgets: DEFAULT_WIDGETS, layout: DEFAULT_LAYOUT }),
     }),
-    { name: "crypto-research-console-workspace" }
+    {
+      name: "crypto-research-console-workspace",
+      version: 2,
+      migrate: (persisted, version) => {
+        if (version < 2 && persisted && typeof persisted === "object") {
+          return {
+            ...(persisted as Record<string, unknown>),
+            activeSymbol: DEFAULT_ACTIVE_SYMBOL,
+            watchlist: DEFAULT_WATCHLIST,
+          };
+        }
+        return persisted;
+      },
+    }
   )
 );
 

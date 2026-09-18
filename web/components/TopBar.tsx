@@ -29,14 +29,6 @@ function Clock({ tz, label }: { tz: string; label: string }) {
   );
 }
 
-function marketStateNY(): { label: string; open: boolean } {
-  const ny = new Date(new Date().toLocaleString("en-US", { timeZone: "America/New_York" }));
-  const day = ny.getDay();
-  const mins = ny.getHours() * 60 + ny.getMinutes();
-  const open = day >= 1 && day <= 5 && mins >= 570 && mins < 960; // 09:30–16:00
-  return { label: open ? "NYSE OPEN" : "NYSE CLOSED", open };
-}
-
 export default function TopBar() {
   const setCommandOpen = useTerminal((s) => s.setCommandOpen);
   const activeSymbol = useTerminal((s) => s.activeSymbol);
@@ -46,13 +38,12 @@ export default function TopBar() {
     refetchInterval: 30_000,
   });
 
-  const market = marketStateNY();
   const healthy = status?.providers.filter((p) => p.ok > 0) ?? [];
 
   return (
     <header className="flex items-center gap-4 px-3 h-8 bg-[var(--panel-2)] border-b border-[var(--border)] text-[11px] shrink-0">
       <span className="amber font-bold tracking-widest">CRYPTO RESEARCH CONSOLE</span>
-      <span className={market.open ? "up" : "down"}>● {market.label}</span>
+      <span className="up">● CRYPTO 24/7</span>
       <Clock tz="America/New_York" label="NY" />
       <Clock tz="Europe/Rome" label="MIL" />
       <Clock tz="Europe/London" label="LDN" />

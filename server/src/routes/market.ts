@@ -8,6 +8,7 @@ import * as fred from "../providers/fred.js";
 import * as tradingview from "../providers/tradingview.js";
 import * as coingecko from "../providers/coingecko.js";
 import * as binance from "../providers/binance.js";
+import * as coinbase from "../providers/coinbase.js";
 import * as news from "../providers/news.js";
 import * as econcalendar from "../providers/econcalendar.js";
 import * as finra from "../providers/finra.js";
@@ -129,6 +130,21 @@ async function getQuotes(symbols: string[]): Promise<yahoo.Quote[]> {
     results.forEach((r, i) => {
       if (r.status === "fulfilled") fetched.set(cryptoSymbols[i], r.value);
     });
+    const unavailable = cryptoSymbols.filter((s) => !fetched.has(s));
+    if (unavailable.length > 0) {
+      try {
+        const referenceQuotes = await coingecko.quotes(unavailable);
+        referenceQuotes.forEach((q) => fetched.set(q.symbol, q));
+      } catch {
+        try {
+          const referenceQuotes = await coinbase.quotes(unavailable);
+          referenceQuotes.forEach((q) => fetched.set(q.symbol, q));
+        } catch {
+          // Reference fallbacks are best-effort; leave unresolved symbols for
+          // the normal providers and preserve any stale cached values.
+        }
+      }
+    }
     remaining = remaining.filter((s) => !fetched.has(s));
   }
 
@@ -232,7 +248,11 @@ marketRouter.get("/history/:symbol", async (req, res) => {
   try {
     const data = await cached(`history:${symbol}:${rangeKey}`, HISTORY_TTL, () =>
       binance.CRYPTO_SYMBOLS.has(symbol)
-        ? binance.history(symbol, rangeKey)
+        ? withFallback([
+            ["binance", () => binance.history(symbol, rangeKey)],
+            ["coingecko-reference", () => coingecko.history(symbol, rangeKey)],
+            ["coinbase-reference", () => coinbase.history(symbol, rangeKey)],
+          ])
         : isVix(symbol)
         ? vixHistory(rangeKey)
         : withFallback([

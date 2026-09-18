@@ -1,4 +1,5 @@
 import type { Candle, Quote } from "./yahoo.js";
+import type { CryptoRow } from "./coingecko.js";
 
 const BASE = "https://api.coinbase.com";
 const EXCHANGE_BASE = "https://api.exchange.coinbase.com";
@@ -60,6 +61,22 @@ export async function quote(symbol: string): Promise<Quote> {
 
 export async function quotes(symbols: string[]): Promise<Quote[]> {
   return Promise.all(symbols.map((symbol) => quote(symbol)));
+}
+
+export async function markets(): Promise<CryptoRow[]> {
+  const symbols = Object.keys(NAMES);
+  const rows = await quotes(symbols);
+  return rows.map((row) => ({
+    id: `${row.symbol}-USD`,
+    symbol: row.symbol,
+    name: row.name ?? row.symbol,
+    price: row.price ?? 0,
+    changePercent24h: row.changePercent,
+    marketCap: row.marketCap,
+    volume24h: row.volume,
+    rank: null,
+    sparkline: [],
+  }));
 }
 
 export async function history(symbol: string, rangeKey: string): Promise<Candle[]> {

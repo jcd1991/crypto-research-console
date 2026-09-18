@@ -376,6 +376,7 @@ marketRouter.get("/crypto", async (req, res) => {
       withFallback([
         ["coingecko", () => coingecko.markets(50)],
         ["binance", () => binance.markets()],
+        ["coinbase-reference", () => coinbase.markets()],
       ])
     );
     res.json(data);

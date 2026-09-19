@@ -287,17 +287,7 @@ function yahooRange(rangeKey: string): { range: string; interval: string } {
 marketRouter.get("/search", async (req, res) => {
   const q = String(req.query.q ?? "").trim();
   if (!q) return res.json([]);
-  try {
-    const data = await cached(`search:${q.toLowerCase()}`, 300_000, () =>
-      withFallback([
-        ["tradingview", () => tradingview.search(q)],
-        ["yahoo", () => yahoo.search(q)],
-      ])
-    );
-    res.json(data);
-  } catch (err) {
-    fail(req, res, err);
-  }
+  res.json(binance.searchAssets(q));
 });
 
 // ---- news ----
@@ -307,14 +297,14 @@ marketRouter.get("/news", async (req, res) => {
   try {
     const data = await cached(`news:${symbol ?? "top"}`, NEWS_TTL, async () => {
       if (symbol) {
-        const lists = await Promise.allSettled([news.symbolNews(symbol), news.topNews(symbol + " stock")]);
+        const lists = await Promise.allSettled([news.symbolNews(symbol), news.topNews(symbol + " crypto")]);
         const ok = lists.filter((r) => r.status === "fulfilled").map((r) => (r as any).value);
         if (ok.length === 0) throw new Error("all news sources failed");
         return news.dedupe(ok).slice(0, 40);
       }
       const lists = await Promise.allSettled([
-        news.topNews("stock market"),
-        news.topNews("federal reserve economy"),
+        news.topNews("crypto market"),
+        news.topNews("bitcoin ethereum digital assets"),
       ]);
       const ok = lists.filter((r) => r.status === "fulfilled").map((r) => (r as any).value);
       if (ok.length === 0) throw new Error("all news sources failed");
@@ -404,6 +394,21 @@ marketRouter.get("/crypto/orderbook/:symbol", async (req, res) => {
   try {
     const data = await cached(`orderbook:${symbol}`, 5_000, () =>
       withFallback([["binance", () => binance.orderBook(symbol)]])
+    );
+    res.json(data);
+  } catch (err) {
+    fail(req, res, err);
+  }
+});
+
+marketRouter.get("/crypto/derivatives/:symbol", async (req, res) => {
+  const symbol = req.params.symbol.toUpperCase();
+  if (!binance.CRYPTO_SYMBOLS.has(symbol)) {
+    return res.status(400).json({ error: "unsupported crypto symbol" });
+  }
+  try {
+    const data = await cached(`derivatives:${symbol}`, 10_000, () =>
+      withFallback([["binance-futures", () => binance.derivativesSnapshot(symbol)]])
     );
     res.json(data);
   } catch (err) {

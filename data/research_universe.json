@@ -1,0 +1,19 @@
+{
+  "assets": [
+    { "symbol": "BTC", "hyperliquid": "BTC" },
+    { "symbol": "ETH", "hyperliquid": "ETH" },
+    { "symbol": "SOL", "hyperliquid": "SOL" },
+    { "symbol": "BNB", "hyperliquid": "BNB" },
+    { "symbol": "XRP", "hyperliquid": "XRP" },
+    { "symbol": "ADA", "hyperliquid": "ADA" },
+    { "symbol": "DOGE", "hyperliquid": "DOGE" },
+    { "symbol": "AVAX", "hyperliquid": "AVAX" }
+  ],
+  "protocols": [
+    { "slug": "lido", "label": "Lido", "tvlSlug": "lido", "feesSlug": "lido", "revenueSlug": "lido", "holderRevenueSlug": "lido" },
+    { "slug": "aave", "label": "Aave", "tvlSlug": "aave", "feesSlug": "aave", "revenueSlug": "aave", "holderRevenueSlug": "aave" },
+    { "slug": "uniswap", "label": "Uniswap", "tvlSlug": "uniswap", "feesSlug": "uniswap", "revenueSlug": "uniswap", "holderRevenueSlug": "uniswap" },
+    { "slug": "hyperliquid-perps", "label": "Hyperliquid Perps", "tvlSlug": "hyperliquid", "feesSlug": "hyperliquid-perps", "revenueSlug": "hyperliquid-perps", "holderRevenueSlug": "hyperliquid-perps" },
+    { "slug": "jupiter", "label": "Jupiter", "tvlSlug": "jupiter", "feesSlug": "jupiter", "revenueSlug": "jupiter", "holderRevenueSlug": "jupiter" }
+  ]
+}

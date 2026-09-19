@@ -22,12 +22,12 @@ export default function Terminal() {
         const map: Record<string, () => void> = {
           "1": () => addWidget("chart"),
           "2": () => addWidget("quote"),
-          "3": () => addWidget("news"),
-          "4": () => addWidget("screener"),
-          "5": () => addWidget("heatmap"),
-          "6": () => addWidget("crypto"),
-          "7": () => addWidget("options"),
-          "8": () => addWidget("portfolio"),
+          "3": () => addWidget("crypto"),
+          "4": () => addWidget("derivatives"),
+          "5": () => addWidget("news"),
+          "6": () => addWidget("watchlist"),
+          "7": () => addWidget("crypto-regime"),
+          "8": () => addWidget("strategy-lab"),
           "9": () => addWidget("ai"),
         };
         const fn = map[e.key];

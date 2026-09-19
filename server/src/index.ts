@@ -7,6 +7,11 @@ import { allStats } from "./providers/registry.js";
 import { requireApiKey } from "./auth.js";
 import { rateLimit } from "./rateLimit.js";
 import { labRouter } from "./routes/lab.js";
+import { researchRouter } from "./routes/research.js";
+import { evaluateAlerts, pruneResearchSnapshots, sampleAll, sampleAssets, sampleProtocols } from "./services/research.js";
+import { startLiquidationCollectors } from "./services/liquidations.js";
+import { sampleFlows, sampleOnchain } from "./services/intel.js";
+import { ASSET_UNIVERSE } from "./research/registry.js";
 
 const app = express();
 
@@ -45,6 +50,7 @@ app.use(
   rateLimit({ windowMs: 60_000, max: 10 }),
   aiRouter
 );
+app.use("/api/research", requireApiKey, rateLimit({ windowMs: 60_000, max: 120 }), researchRouter);
 
 app.get("/api/status", (_req, res) => {
   res.json({
@@ -63,3 +69,22 @@ const HOST = process.env.API_HOST ?? "127.0.0.1";
 app.listen(PORT, HOST, () => {
   console.log(`Crypto Research Console API listening on http://${HOST}:${PORT}`);
 });
+
+if (process.env.RESEARCH_SAMPLER_ENABLED !== "0" && process.env.NODE_ENV !== "test") {
+  let running = false;
+  const run = async (all = false) => {
+    if (running) return;
+    running = true;
+    try { if (all) await sampleAll(); else { await sampleAssets(); evaluateAlerts(); } }
+    finally { running = false; }
+  };
+  void run(true);
+  setInterval(() => void run(), 5 * 60_000).unref();
+  setInterval(() => void (async () => { if (running) return; running = true; try { await sampleProtocols(); evaluateAlerts(); } finally { running = false; } })(), 15 * 60_000).unref();
+  setInterval(() => pruneResearchSnapshots(), 24 * 60 * 60_000).unref();
+  startLiquidationCollectors(ASSET_UNIVERSE.map((x) => x.symbol));
+  void sampleOnchain().catch(() => undefined);
+  void sampleFlows().catch(() => undefined);
+  setInterval(() => void sampleOnchain().catch(() => undefined), 24 * 60 * 60_000).unref();
+  setInterval(() => void sampleFlows().catch(() => undefined), 24 * 60 * 60_000).unref();
+}

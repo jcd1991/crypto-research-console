@@ -45,3 +45,16 @@ describe("GET /crypto/orderbook/:symbol", () => {
     }
   });
 });
+
+describe("GET /crypto/derivatives/:symbol", () => {
+  it("rejects symbols outside the crypto whitelist", async () => {
+    const handler = getHandler("/crypto/derivatives/:symbol");
+    const req = { params: { symbol: "AAPL" } } as unknown as Request;
+    const res = fakeRes();
+
+    await handler(req, res, () => {});
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({ error: "unsupported crypto symbol" });
+  });
+});

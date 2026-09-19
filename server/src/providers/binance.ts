@@ -7,6 +7,17 @@ const NAMES: Record<string, string> = {
   DOTUSDT: "Polkadot", LINKUSDT: "Chainlink", LTCUSDT: "Litecoin", MATICUSDT: "Polygon",
 };
 
+export type CryptoSearchResult = { symbol: string; name: string; exchange: string; type: string };
+
+export function searchAssets(query: string): CryptoSearchResult[] {
+  const normalized = query.trim().toUpperCase();
+  if (!normalized) return [];
+  return Object.entries(NAMES)
+    .map(([pair, name]) => ({ symbol: pair.replace("USDT", ""), name }))
+    .filter(({ symbol, name }) => symbol.includes(normalized) || name.toUpperCase().includes(normalized))
+    .map(({ symbol, name }) => ({ symbol, name, exchange: "Crypto", type: "spot/perpetual" }));
+}
+
 /** Plain tickers (BTC, ETH, ...) this app treats as crypto for routing quotes/history. */
 export const CRYPTO_SYMBOLS = new Set(Object.keys(NAMES).map((s) => s.replace("USDT", "")));
 
@@ -39,6 +50,58 @@ export async function orderBook(symbol: string, limit = 20): Promise<{ bids: [st
   if (!res.ok) throw new Error(`binance ${res.status}`);
   const d = await res.json();
   return { bids: d.bids ?? [], asks: d.asks ?? [] };
+}
+
+export type DerivativesSnapshot = {
+  symbol: string;
+  venue: "Binance USD-M";
+  markPrice: number;
+  indexPrice: number;
+  basisPercent: number;
+  fundingRatePercent: number;
+  nextFundingTime: number;
+  openInterestContracts: number;
+  openInterestUsd: number;
+  volume24hUsd: number;
+  priceChangePercent24h: number;
+  sourceTime: number;
+};
+
+/** Public, read-only perpetual-futures snapshot for execution-aware research. */
+export async function derivativesSnapshot(symbol: string): Promise<DerivativesSnapshot> {
+  const pair = symbol.toUpperCase() + "USDT";
+  const encodedPair = encodeURIComponent(pair);
+  const [premiumRes, oiRes, tickerRes] = await Promise.all([
+    fetch(`https://fapi.binance.com/fapi/v1/premiumIndex?symbol=${encodedPair}`),
+    fetch(`https://fapi.binance.com/fapi/v1/openInterest?symbol=${encodedPair}`),
+    fetch(`https://fapi.binance.com/fapi/v1/ticker/24hr?symbol=${encodedPair}`),
+  ]);
+  if (!premiumRes.ok) throw new Error(`binance futures premium ${premiumRes.status}`);
+  if (!oiRes.ok) throw new Error(`binance futures open interest ${oiRes.status}`);
+  if (!tickerRes.ok) throw new Error(`binance futures ticker ${tickerRes.status}`);
+
+  const [premium, oi, ticker] = await Promise.all([premiumRes.json(), oiRes.json(), tickerRes.json()]);
+  const markPrice = Number(premium.markPrice);
+  const indexPrice = Number(premium.indexPrice);
+  const openInterestContracts = Number(oi.openInterest);
+  if (![markPrice, indexPrice, openInterestContracts].every(Number.isFinite) || indexPrice <= 0) {
+    throw new Error("binance futures returned invalid numeric data");
+  }
+
+  return {
+    symbol: symbol.toUpperCase(),
+    venue: "Binance USD-M",
+    markPrice,
+    indexPrice,
+    basisPercent: ((markPrice - indexPrice) / indexPrice) * 100,
+    fundingRatePercent: Number(premium.lastFundingRate) * 100,
+    nextFundingTime: Number(premium.nextFundingTime),
+    openInterestContracts,
+    openInterestUsd: openInterestContracts * markPrice,
+    volume24hUsd: Number(ticker.quoteVolume),
+    priceChangePercent24h: Number(ticker.priceChangePercent),
+    sourceTime: Number(premium.time),
+  };
 }
 
 /** Single-symbol quote so crypto tickers can flow through the same /api/quotes path as stocks. */

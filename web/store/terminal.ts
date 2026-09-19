@@ -20,7 +20,11 @@ export type WidgetType =
   | "tv"
   | "recap"
   | "crypto-regime"
-  | "strategy-lab";
+  | "strategy-lab"
+  | "derivatives"
+  | "fundamentals"
+  | "research"
+  | "intel";
 
 export type WidgetInstance = {
   id: string;
@@ -59,6 +63,10 @@ type TerminalState = {
 const DEFAULT_WIDGETS: WidgetInstance[] = [
   { id: "w-chart", type: "chart", linked: true },
   { id: "w-quote", type: "quote", linked: true },
+  { id: "w-derivatives", type: "derivatives", linked: true },
+  { id: "w-fundamentals", type: "fundamentals", linked: false },
+  { id: "w-research", type: "research", linked: false },
+  { id: "w-intel", type: "intel", linked: false },
   { id: "w-watchlist", type: "watchlist", linked: false },
   { id: "w-crypto", type: "crypto", linked: false },
   { id: "w-news", type: "news", linked: true },
@@ -72,7 +80,11 @@ const DEFAULT_WATCHLIST = ["BTC", "ETH", "SOL", "BNB", "XRP", "ADA", "DOGE", "AV
 const DEFAULT_LAYOUT: LayoutItem[] = [
   { i: "w-chart", x: 0, y: 0, w: 7, h: 12 },
   { i: "w-quote", x: 7, y: 0, w: 5, h: 6 },
-  { i: "w-watchlist", x: 7, y: 6, w: 5, h: 6 },
+  { i: "w-derivatives", x: 7, y: 6, w: 5, h: 7 },
+  { i: "w-fundamentals", x: 0, y: 33, w: 6, h: 10 },
+  { i: "w-research", x: 6, y: 33, w: 6, h: 10 },
+  { i: "w-intel", x: 0, y: 43, w: 12, h: 12 },
+  { i: "w-watchlist", x: 7, y: 13, w: 5, h: 6 },
   { i: "w-crypto", x: 0, y: 12, w: 6, h: 9 },
   { i: "w-news", x: 6, y: 12, w: 6, h: 9 },
   { i: "w-regime", x: 0, y: 21, w: 6, h: 9 },
@@ -97,6 +109,10 @@ const SIZE_BY_TYPE: Record<WidgetType, { w: number; h: number }> = {
   recap: { w: 5, h: 12 },
   "crypto-regime": { w: 6, h: 9 },
   "strategy-lab": { w: 6, h: 12 },
+  derivatives: { w: 5, h: 7 },
+  fundamentals: { w: 6, h: 10 },
+  research: { w: 6, h: 10 },
+  intel: { w: 12, h: 12 },
 };
 
 export const useTerminal = create<TerminalState>()(
@@ -142,9 +158,9 @@ export const useTerminal = create<TerminalState>()(
     }),
     {
       name: "crypto-research-console-workspace",
-      version: 3,
+      version: 5,
       migrate: (persisted, version) => {
-        if (version < 3 && persisted && typeof persisted === "object") {
+        if (version < 5 && persisted && typeof persisted === "object") {
           return {
             ...(persisted as Record<string, unknown>),
             activeSymbol: DEFAULT_ACTIVE_SYMBOL,

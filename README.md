@@ -2,7 +2,7 @@
 
 # Crypto Market Terminal
 
-**A crypto-focused OpenTerminal fork for market data, execution-aware research views, regimes, trades, and risk.**
+**A local crypto research terminal for spot markets, perpetual positioning, catalysts, regimes, strategy runs, and risk.**
 
 Dark. Dense. Keyboard‑driven. Zero paid API keys, zero subscriptions.
 
@@ -11,7 +11,7 @@ Dark. Dense. Keyboard‑driven. Zero paid API keys, zero subscriptions.
 [![No API Key Required](https://img.shields.io/badge/data-no%20API%20key%20required-brightgreen)](#data-sources)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-ff69b4.svg)](#contributing)
 
-<sub>Derived from <a href="https://github.com/ErTasselli/OpenTerminal">OpenTerminal</a>; crypto-specific UI and adapters are maintained here.</sub>
+<sub>Forked from <a href="https://github.com/ErTasselli/OpenTerminal">ErTasselli/OpenTerminal</a> under the MIT License. This downstream project is independently maintained and is not affiliated with the upstream authors.</sub>
 
 <br/>
 
@@ -23,11 +23,11 @@ Dark. Dense. Keyboard‑driven. Zero paid API keys, zero subscriptions.
 
 <br/>
 
-## Why this terminal?
+## Scope
 
-Crypto market data, exchange monitoring, and research tooling are often split across several dashboards. This fork puts the crypto workflow first: quotes, candles, watchlists, reference market data, Freqtrade runs, regimes, trades, and risk in one local terminal.
+Crypto market data, derivatives positioning, catalysts, and strategy evidence are often split across several dashboards. This project narrows OpenTerminal to one job: a local, read-only crypto research workspace. The default workflow connects spot prices and candles with perpetual funding, mark/index basis, open interest, news, Market Behavior Lab runs, regimes, trades, and risk.
 
-It retains OpenTerminal's fast, keyboard-first, widget-based architecture while narrowing the supported product story to crypto. Provider fallbacks are explicit and source badges distinguish reference prices from execution-grade research artifacts.
+It is not an order-entry system, equity terminal, token recommendation engine, or claim of profitable trading performance. Provider and venue labels stay visible because a reference price, a Binance perpetual snapshot, and a Freqtrade result are different kinds of evidence and must not be silently blended.
 
 No signup. No credit card. No rate‑limited demo tier. Clone it, `npm install`, and you have a live terminal in under a minute.
 
@@ -39,13 +39,17 @@ No signup. No credit card. No rate‑limited demo tier. Clone it, `npm install`,
 - ⌘K **global command palette** — search supported crypto assets and jump straight to them
 - 📈 **Professional charting** (via [`lightweight-charts`](https://github.com/tradingview/lightweight-charts)) — candlesticks, bars, line, area, volume, 8 timeframes (1D → MAX), and SMA / EMA / VWAP / Bollinger Bands / RSI / MACD indicators, each with a live hover legend showing OHLC, volume, and every active indicator's value under your cursor
 - 💹 **Crypto quote panel** — last / bid / ask / OHLC, volume, market cap, and venue/source status
+- 🧭 **Cross-venue leverage map** — independent Binance USD-M, Hyperliquid, and OKX rows, native funding intervals, mark/index basis, OI in native units plus USD, and explicit 451/unavailable/stale states
+- 🧬 **Protocol fundamentals** — curated Lido, Aave, Uniswap, Hyperliquid Perps, and Jupiter pages with TVL, fees, revenue, holder revenue, market cap/FDV, ratios, missing-field reasons, and DefiLlama provenance
+- 📝 **Research notebook + alert inbox** — API-key-protected structured theses with immutable metric snapshots, append-only reviews, fixed metric thresholds, transition-only events, and optional in-session browser notifications
+- ⚡ **Market intelligence adapters** — Binance/Bybit liquidation collectors with Binance REST warm-backfill and connection status, Binance/Bybit/Hyperliquid/OKX order-book depth, public stablecoin supply, ETF flow provenance and confidence, Coin Metrics Community daily series, Snapshot governance proposals, read-only Ethereum Research Wallet holdings/follows via Blockscout, curated wallet labels, and source-required unlock records
 - 📰 **News feed** — aggregated and de‑duplicated from multiple RSS sources, per‑symbol or global
 - 🪙 **Crypto board** — top assets with 7‑day sparklines, BTC/ETH dominance, and full OHLCV charting for any listed coin
 - 🧭 **Crypto regime dashboard** — inspect exported regimes, confidence, PnL, and drawdown in UTC/24×7 time
 - 🧪 **Strategy run console** — inspect Market Behavior Lab artifacts without embedding Python or Freqtrade
 - 💼 **Portfolio tracker** — log buy/sell transactions, track average cost, realized & unrealized P&L (persisted in SQLite)
 - 🤖 **AI assistant** (optional) — ask questions about the symbol you're looking at, powered by Claude, fully context‑aware of the terminal's current data
-- ⚡ **Near real‑time updates** — quotes and indexes refresh every second with a subtle flash on change, so you always know what just moved
+- ⚡ **Frequent local refreshes** — research panels poll on bounded intervals and use cached provider fallbacks instead of pretending to be a tick-perfect execution feed
 - ⌨️ **Keyboard shortcuts** everywhere — `⌘K` to search, `⌥1`–`⌥9` to add any widget
 
 <br/>
@@ -78,17 +82,37 @@ Headlines aggregated and de‑duplicated across multiple sources, filterable per
 
 ## 🗂️ Data sources
 
-No paid API, no keys, and no single point of failure — every endpoint has a fallback chain, and results are cached with a stale‑while‑revalidate strategy so a temporary outage never blanks out the UI.
+The core workspace requires no paid market-data key. Reference quotes and candles use cached fallback chains; venue-specific research panels fail visibly when their named venue is unavailable instead of substituting a different venue and presenting it as equivalent.
 
 | Data | Primary source | Fallback |
 |---|---|---|
 | Crypto quotes & board | CoinGecko | Binance public API |
 | Crypto candles | Binance public API (klines) | Coinbase reference |
+| Perpetual positioning | Binance USD-M, Hyperliquid, and OKX public APIs | — |
+| Protocol fundamentals | DefiLlama exact curated slugs | — |
+| Liquidations & liquidity | Binance/Bybit streams, Binance REST warm-backfill, and Binance/Bybit/Hyperliquid/OKX public APIs | — |
+| Stablecoins | DefiLlama public stablecoin API | — |
+| ETF flows | Farside reported rows when reachable; Xoomar holdings-derived fallback with confidence labeling | — |
+| On-chain history | Coin Metrics Community API | — |
+| Governance | Snapshot Hub GraphQL | — |
 | News | Yahoo Finance RSS | Google News RSS |
 | Freqtrade execution truth | Market Behavior Lab artifacts | — |
 | Freqtrade monitor | Localhost read-only REST adapter | — |
 
 > ⚠️ These are public endpoints, not officially licensed data feeds — treat prices as delayed/indicative, not execution‑grade. See [`server/src/providers/`](server/src/providers) — each provider is a small, isolated module, so swapping or adding a data source is a 30‑minute job.
+
+The derivatives panel is intentionally venue-specific. Funding, basis, and open interest from one venue must not be substituted for missing data on another venue or outside its available time range.
+
+### Provenance rules
+
+Every research panel should answer four questions before you use it in a memo:
+
+1. **What exactly was observed?** Asset, protocol, instrument, chain, or wallet.
+2. **Where did it come from?** Provider, venue, source URL, and source timestamp.
+3. **How fresh and complete is it?** Available, stale, unavailable, or insufficient history.
+4. **Is it reported or derived?** ETF rows, wallet labels, and calculated ratios carry explicit classification and confidence.
+
+Missing data remains `null` or visibly unavailable. The console does not silently turn a different venue, a failed provider, or a missing metric into a plausible-looking substitute.
 
 <br/>
 
@@ -137,6 +161,8 @@ Without a key, everything else still works — the AI widget just shows a friend
 
 - The API binds to `127.0.0.1` and only accepts browser requests from `http://localhost:3000` by default — nothing else on your network can reach it out of the box.
 - The portfolio and AI endpoints require a shared secret. If you don't set `API_KEY` yourself, the API generates one on first run and saves it to `data/.api-key`; the bundled web app reads that file automatically, so local dev stays zero-config.
+- Research routes (`/api/research/*`) use the same shared secret. A single-process sampler stores five-minute perpetual and fifteen-minute protocol observations in SQLite, retains 90 days, and can be disabled with `RESEARCH_SAMPLER_ENABLED=0` on tests or additional replicas.
+- Research Wallets are read-only public-address lookups. They never request private keys, seed phrases, signatures, exchange credentials, or transaction permissions. Ethereum holdings use Blockscout public APIs; a wallet label is analyst metadata, not proof of ownership.
 - To expose this beyond your own machine, set `API_HOST=0.0.0.0`, `API_KEY=<a-strong-secret>` (on both the api and web processes), and `WEB_ORIGIN=<your actual origin>` explicitly. Don't do this without also keeping dependencies patched — see [Known limitations](#known-limitations) below.
 - The `/api/ai` rate limit (10 req/min) keys on `req.ip`. Calls made through the bundled web proxy all arrive from that proxy's own address, so by default every caller sharing it shares one bucket. If you're serving more than one real user through it, set `TRUST_PROXY=1` on the api process **only if** you also run your own reverse proxy in front of the web service that sets `X-Forwarded-For` from the real client and doesn't let visitors set it themselves — otherwise a caller can forge that header to dodge the limit.
 
@@ -169,13 +195,14 @@ Portfolio data persists in the `terminal-data` volume (SQLite, WAL mode). Ports 
 ```
 ├── server/                  # Express + TypeScript crypto API
 │   └── src/
-│       ├── providers/       # crypto reference feeds and optional Freqtrade adapter
-│       ├── routes/          # crypto market, portfolio, AI, optional lab adapter
+│       ├── providers/       # market, venue, protocol, on-chain, and wallet adapters
+│       ├── routes/          # crypto market, research, portfolio, AI, optional lab adapter
+│       ├── services/        # normalized snapshots, samplers, alerts, and wallet events
 │       ├── cache.ts         # TTL cache with stale-while-revalidate fallback
 │       └── db.ts            # SQLite (better-sqlite3, WAL)
 └── web/                      # Next.js 15 + React 19 + Tailwind 4
     ├── components/           # TopBar, Sidebar, Workspace, CommandPalette
-    ├── components/widgets/   # Chart, Quote, Watchlist, Crypto, Regime, Strategy Lab, News, Risk
+    ├── components/widgets/   # Market, leverage, fundamentals, intelligence, notebook, wallet, and risk panels
     ├── lib/                  # API client, technical indicators
     └── store/                # Zustand store (workspace layout, persisted)
 ```
@@ -184,11 +211,48 @@ Run tests with `npm test` (Vitest, no network calls). CI runs on every push — 
 
 <br/>
 
+## Research workflow
+
+The terminal is organized around the questions a crypto analyst needs to answer before forming a view:
+
+1. **Market context:** price, volume, breadth, BTC/ETH dominance, and the current regime.
+2. **Positioning:** perpetual mark/index basis, funding, open interest, venue-specific liquidity, and liquidation coverage.
+3. **Catalysts:** asset-specific and market-wide news, governance, unlocks, stablecoin/ETF flows, and timestamps.
+4. **Wallet context:** compare a public research wallet's holdings with the asset/protocol thesis; treat labels and inferred intent as hypotheses.
+5. **Evidence:** a reproducible Market Behavior Lab run with its venue, date window, configuration, trades, drawdown, and provenance.
+6. **Risk:** portfolio exposure and the difference between reference data, research artifacts, and execution truth.
+
+This prioritization follows the structure of current institutional crypto markets: spot, fixed-term futures, perpetuals, options, ETPs, and on-chain protocols coexist, while perpetuals remain a major center of activity. See Coinbase Institutional's [Guide to Crypto Markets 2026](https://www.coinbase.com/institutional/research-insights/resources/guides/guide-to-crypto-markets-2026), the [Coin Metrics market-data taxonomy](https://docs.coinmetrics.io/market-data), and Binance's documentation for [funding](https://www.binance.com/en/support/faq/detail/360033525031) and [mark price](https://www.binance.com/en/support/faq/detail/360033525271).
+
+## Competitive positioning
+
+Paid products still have materially broader data coverage: CoinGlass emphasizes cross-exchange derivatives, liquidation and liquidity heatmaps, anomaly alerts, and high-frequency history; Glassnode combines spot, futures, options, ETF, macro, and long-run on-chain fundamentals; Nansen differentiates through labeled wallets, Smart Money tracking, and wallet alerts; and Messari focuses on curated research, screeners, feeds, and governance intelligence. This console intentionally competes on a narrower axis: local ownership, transparent provider/venue lineage, reproducible snapshots, open-source code, and a thesis notebook that does not turn missing data into false precision.
+
+The open-source roadmap is therefore complementary rather than a claim of feature parity. The console now covers the first transparent versions of liquidation/order-book data, public wallet holdings, exchange/stablecoin flows, token unlocks, and governance. Remaining expansion areas include options surfaces, deeper historical on-chain series, and more chain-specific wallet adapters—each behind an explicit provider adapter and provenance badge.
+
+<br/>
+
+## Fork lineage and attribution
+
+This repository began as a fork of [ErTasselli/OpenTerminal](https://github.com/ErTasselli/OpenTerminal). The retained upstream foundation includes the Next.js/Express workspace, draggable widget grid, keyboard-driven command palette, charting and indicator layer, local portfolio storage, provider registry, caching, and much of the original visual system.
+
+The downstream work changes the product boundary to crypto: crypto-only discovery and defaults, 24/7 semantics, spot/reference fallbacks, perpetual positioning, Market Behavior Lab artifact readers, crypto regimes, venue/provenance labels, and removal of equity-first panels from the supported interface. Some upstream equity provider modules remain in the source history for comparison and future cleanup, but they are not part of the supported crypto-terminal workflow.
+
+OpenTerminal's copyright notice and MIT terms are preserved in [`LICENSE`](LICENSE). Upstream deserves credit for the terminal architecture; downstream crypto-specific changes and any defects in them belong to this repository. Neither project endorses the other.
+
+<br/>
+
 ## 🗺️ Roadmap
 
-- [ ] Chart drawing tools & multi‑asset comparison overlay
-- [ ] Price alerts with desktop notifications
-- [ ] PostgreSQL as an alternative to SQLite
+- [x] Cross-venue perpetual leverage map with normalized symbols, native intervals, contract units, timestamps, and explicit coverage gaps
+- [x] Funding and open-interest snapshots with price/OI interpretation and bounded history endpoints
+- [ ] Options volatility surface (term structure, skew, put/call positioning) from a clearly attributed venue
+- [ ] On-chain context: exchange and ETF flows, active addresses, transfer value, realized cap/MVRV, with metric definitions beside every chart
+- [x] Protocol fundamentals: TVL, fees, protocol revenue, holder revenue, provenance, and missing-field reasons
+- [x] Research notebook: immutable timestamped thesis snapshot, catalyst, invalidation, and append-only review
+- [x] Research Wallets: read-only Ethereum holdings, follow state, stale fallback, and material-change inbox events
+- [ ] Data-quality ledger showing provider freshness, venue, units, missing windows, fallbacks, and stale observations
+- [ ] Multi-asset relative-strength and correlation views plus exportable research snapshots
 
 Have an idea? [Open an issue](../../issues) — contributions are very welcome.
 
@@ -207,6 +271,7 @@ Please open an issue first for anything non‑trivial so we can align on approac
 
 ## Known limitations
 
+- Binance spot and USD-M endpoints can return HTTP 451 in restricted locations. Spot views can fall back to reference providers; the Binance derivatives panel deliberately shows unavailable because substituting another venue would change the meaning of funding, basis, and open interest.
 - `npm audit` still flags two dependency advisories this project doesn't force-fix: `fast-xml-parser`'s XMLBuilder injection (moderate) doesn't apply here — only `XMLParser` is used, never `XMLBuilder` — and `postcss`'s high-severity issue is bundled inside Next.js itself, only resolved by a Next 16 major upgrade. Both are tracked, neither is silently ignored.
 - If you deploy behind a reverse proxy or load balancer, set `API_HOST`/`WEB_ORIGIN` to match, and terminate TLS in front of it — this project doesn't handle HTTPS itself.
 

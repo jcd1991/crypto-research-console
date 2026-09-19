@@ -60,7 +60,7 @@ export default function CommandPalette() {
             if (e.key === "ArrowUp") setSelected((s) => Math.max(s - 1, 0));
             if (e.key === "Enter" && results[selected]) pick(results[selected], e.shiftKey);
           }}
-          placeholder="Ticker, company, ETF, crypto, index…  (Enter = load · Shift+Enter = load + watchlist)"
+          placeholder="Crypto asset (BTC, ETH, SOL…)  · Enter = load · Shift+Enter = add to watchlist"
           className="w-full !border-0 !border-b !border-[var(--border)] px-3 py-2 text-[13px]"
         />
         <div className="max-h-80 overflow-auto">

@@ -1,0 +1,16 @@
+"use client";
+import { useQuery } from "@tanstack/react-query";
+import { apiGet, fmt, fmtBig, pctClass } from "../../lib/api";
+import { useWidgetSymbol, type WidgetInstance } from "../../store/terminal";
+type Venue = { venue:string; status:string; stale:boolean; nativeIntervalHours:number; payload:any };
+export default function DerivativesWidget({ widget }: { widget: WidgetInstance }) {
+  const symbol = useWidgetSymbol(widget);
+  const { data, error } = useQuery({ queryKey:["research-derivatives",symbol], queryFn:()=>apiGet<{venues:Venue[]}>(`/api/research/derivatives/${encodeURIComponent(symbol)}`), refetchInterval:30000 });
+  const { data: history } = useQuery({ queryKey:["research-derivatives-history",symbol], queryFn:()=>apiGet<{venues:Record<string, Venue[]>}>(`/api/research/derivatives/${encodeURIComponent(symbol)}/history?range=24h`), refetchInterval:60000 });
+  if (error) return <div className="p-2 down">Leverage map unavailable for {symbol}.</div>;
+  if (!data) return <div className="p-2 dim">Loading {symbol} leverage map…</div>;
+  const available = data.venues.filter((v)=>v.status === "available");
+  const dispersion = available.length > 1 ? Math.max(...available.map(v=>Number(v.payload.funding_rate_pct))) - Math.min(...available.map(v=>Number(v.payload.funding_rate_pct))) : null;
+  const interpretation = available.length ? (() => { const v=available[0].payload; const oi=v.open_interest_change_pct_24h; const px=v.price_change_pct_24h; if (oi == null) return "insufficient history"; if (px > 0 && oi > 0) return "leverage building"; if (px > 0 && oi < 0) return "short covering"; if (px < 0 && oi > 0) return "new shorts / trapped longs"; return "deleveraging"; })() : "insufficient history";
+  return <div className="p-2 text-xs"><div className="flex justify-between mb-2"><span className="font-semibold">{symbol} leverage map</span>{dispersion !== null && <span className="dim">Funding dispersion {fmt(dispersion,4)}%</span>}</div><div className="overflow-auto"><table className="w-full"><thead><tr className="dim text-left"><th>Venue</th><th>Status</th><th>Funding / interval</th><th>Basis</th><th>OI USD</th><th>OI Δ</th></tr></thead><tbody>{data.venues.map((v)=><tr key={v.venue} className="border-t border-[#161616]"><td className="py-1">{v.venue}</td><td className={v.status === "available" ? "up" : "down"}>{v.status}</td><td>{v.status === "available" ? `${fmt(v.payload.funding_rate_pct,4)}% / ${v.nativeIntervalHours}h` : "—"}</td><td className={v.status === "available" ? pctClass(v.payload.basis_pct) : "dim"}>{v.status === "available" ? `${fmt(v.payload.basis_pct,3)}%` : "—"}</td><td>{v.status === "available" ? fmtBig(v.payload.open_interest_usd) : "—"}</td><td>{v.status === "available" && v.payload.open_interest_change_pct_24h != null ? `${fmt(v.payload.open_interest_change_pct_24h)}%` : "insufficient history"}</td></tr>)}</tbody></table></div><div className="mt-2">Interpretation: <span className="text-[var(--amber)]">{interpretation}</span></div><div className="mt-2 dim">24h history: {history ? Object.entries(history.venues).map(([venue, rows]) => `${venue} ${rows.length} observations`).join(" · ") : "loading"}</div><div className="dim mt-2">Rows stay venue-specific. Binance failures (including HTTP 451) are preserved; Hyperliquid is never a fallback.</div></div>;
+}

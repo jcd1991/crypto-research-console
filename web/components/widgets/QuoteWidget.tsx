@@ -5,8 +5,6 @@ import { apiGet, fmt, fmtBig, pctClass, type Quote } from "../../lib/api";
 import { useWidgetSymbol, type WidgetInstance } from "../../store/terminal";
 import Flash from "../Flash";
 
-type ShortVolume = { date: string; shortVolume: number; shortExemptVolume: number; totalVolume: number; shortVolumePercent: number };
-
 export default function QuoteWidget({ widget }: { widget: WidgetInstance }) {
   const symbol = useWidgetSymbol(widget);
   const { data, error } = useQuery({
@@ -14,34 +12,18 @@ export default function QuoteWidget({ widget }: { widget: WidgetInstance }) {
     queryFn: async () => (await apiGet<Quote[]>(`/api/quotes?symbols=${symbol}`))[0],
     refetchInterval: 30_000,
   });
-  // FINRA's Reg SHO file only updates once a day (next-morning), so no point polling it fast.
-  const { data: shortVol } = useQuery({
-    queryKey: ["short-volume", symbol],
-    queryFn: () => apiGet<ShortVolume | null>(`/api/short-volume/${symbol}`),
-    staleTime: 3_600_000,
-  });
-
   if (error) return <div className="p-2 down">Error: {(error as Error).message}</div>;
   if (!data) return <div className="p-2 dim">Loading {symbol}…</div>;
 
   const rows: Array<[string, string, string?]> = [
-    ["Open", fmt(data.open)],
-    ["High", fmt(data.high)],
-    ["Low", fmt(data.low)],
-    ["Prev Close", fmt(data.previousClose)],
+    ["Open 24h", fmt(data.open)],
+    ["High 24h", fmt(data.high)],
+    ["Low 24h", fmt(data.low)],
     ["Bid", fmt(data.bid)],
     ["Ask", fmt(data.ask)],
-    ["Volume", fmtBig(data.volume)],
-    ["Avg Vol 3M", fmtBig(data.avgVolume)],
-    ...(shortVol ? ([["Short Vol %", fmt(shortVol.shortVolumePercent, 1) + "%"]] as Array<[string, string]>) : []),
-    ["Mkt Cap", fmtBig(data.marketCap)],
-    ["P/E (ttm)", fmt(data.pe)],
-    ["EPS (ttm)", fmt(data.eps)],
-    ["Div Yield", data.dividendYield !== null ? fmt(data.dividendYield * 100) + "%" : "—"],
-    ["52W High", fmt(data.week52High)],
-    ["52W Low", fmt(data.week52Low)],
-    ["Beta", fmt(data.beta)],
-    ["Shares Out", fmtBig(data.sharesOutstanding)],
+    ["Bid / ask spread", data.bid && data.ask ? `${fmt(((data.ask - data.bid) / ((data.ask + data.bid) / 2)) * 10_000, 2)} bps` : "—"],
+    ["Base volume 24h", fmtBig(data.volume)],
+    ["Market cap", fmtBig(data.marketCap)],
   ];
 
   return (

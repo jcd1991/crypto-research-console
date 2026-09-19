@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { history, orderBook, quote } from "./binance.js";
+import { derivativesSnapshot, history, orderBook, quote, searchAssets } from "./binance.js";
 
 function mockFetchOnce(body: unknown) {
   const fetchMock = vi.fn().mockResolvedValue({
@@ -42,5 +42,32 @@ describe("binance provider URL encoding", () => {
     const url = fetchMock.mock.calls[0][0] as string;
     expect(url).toContain(encodeURIComponent("AAA&x=1".toUpperCase() + "USDT"));
     expect(url.split("&").length).toBe(3); // symbol, interval, limit only
+  });
+
+  it("returns crypto-only search results", () => {
+    expect(searchAssets("bit")).toEqual([
+      { symbol: "BTC", name: "Bitcoin", exchange: "Crypto", type: "spot/perpetual" },
+    ]);
+    expect(searchAssets("AAPL")).toEqual([]);
+  });
+
+  it("normalizes a perpetual derivatives snapshot", async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce({ ok: true, json: async () => ({ markPrice: "101", indexPrice: "100", lastFundingRate: "0.0001", nextFundingTime: 123, time: 100 }) })
+      .mockResolvedValueOnce({ ok: true, json: async () => ({ openInterest: "10" }) })
+      .mockResolvedValueOnce({ ok: true, json: async () => ({ quoteVolume: "5000", priceChangePercent: "2.5" }) });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await derivativesSnapshot("btc");
+
+    expect(result).toMatchObject({
+      symbol: "BTC",
+      venue: "Binance USD-M",
+      basisPercent: 1,
+      fundingRatePercent: 0.01,
+      openInterestUsd: 1010,
+      volume24hUsd: 5000,
+    });
+    expect(fetchMock.mock.calls[0][0]).toContain("symbol=BTCUSDT");
   });
 });

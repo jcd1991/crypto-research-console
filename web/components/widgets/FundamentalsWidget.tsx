@@ -1,0 +1,11 @@
+"use client";
+import { useEffect, useState } from "react";
+import { apiGet, fmtBig, fmt } from "../../lib/api";
+
+const protocols = ["lido", "aave", "uniswap", "hyperliquid-perps", "jupiter"];
+export default function FundamentalsWidget() {
+  const [slug, setSlug] = useState(protocols[0]); const [data, setData] = useState<any>(null); const [error, setError] = useState("");
+  useEffect(() => { setData(null); apiGet<any>(`/api/research/protocols/${slug}`).then(setData).catch((e) => setError(e.message)); }, [slug]);
+  const m = data?.metrics;
+  return <div className="p-3 text-xs space-y-3 overflow-auto h-full"><div className="flex justify-between items-center"><span className="font-semibold">Protocol fundamentals</span><select value={slug} onChange={(e) => setSlug(e.target.value)} className="bg-transparent border border-[var(--border)] p-1">{protocols.map((p) => <option key={p}>{p}</option>)}</select></div>{error && <div className="down">{error}</div>}{data?.observation?.status === "stale" && <div className="down">STALE — last successful snapshot retained</div>}{m && <><div className="grid grid-cols-3 gap-2">{[["TVL",m.tvlUsd],["Fees 24h",m.fees24hUsd],["Revenue 24h",m.revenue24hUsd],["Holder revenue",m.holderRevenue24hUsd],["Market cap",m.marketCapUsd],["FDV",m.fdvUsd]].map(([k,v]) => <div key={String(k)} className="border border-[var(--border)] p-2"><div className="dim">{k}</div><div>{v == null ? "Missing" : fmtBig(v as number)}</div></div>)}</div><div className="dim">TVL change: {m.tvlChangePct1d == null ? "Missing" : `${fmt(m.tvlChangePct1d)}% (1d)`} · {m.tvlChangePct7d == null ? "Missing" : `${fmt(m.tvlChangePct7d)}% (7d)`}</div><div className="dim">Annualized market-cap/revenue: {m.marketCapRevenueRunRate == null ? "Missing" : `${fmt(m.marketCapRevenueRunRate)}x`} · fees/TVL: {m.feesTvlRunRate == null ? "Missing" : `${fmt(m.feesTvlRunRate * 100)}%`}</div><div className="dim">Chains: {(m.chains ?? []).join(", ") || "Missing"} · Category: {m.category ?? "Missing"}</div><div className="dim">Source: DefiLlama · {m.sourceTime ? new Date(m.sourceTime).toLocaleString() : "unknown"} {m.methodologyUrl && <a className="text-[var(--amber)]" href={m.methodologyUrl} target="_blank">methodology</a>}</div>{m.missing?.length > 0 && <div className="down">Unavailable fields: {m.missing.join(", ")}</div>}</>}</div>;
+}

@@ -45,13 +45,47 @@ body {
   overflow: hidden;
 }
 
+.sidebar-shell {
+  width: 172px;
+  background: linear-gradient(180deg, #0b0b0b 0%, #070707 100%);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  overflow-y: auto;
+}
+.sidebar-heading {
+  height: 34px;
+  padding: 0 10px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--text-dim);
+  font-size: 10px;
+  letter-spacing: .12em;
+  border-bottom: 1px solid var(--border);
+}
+.sidebar-heading .sidebar-mark { color: var(--amber); font-size: 16px; line-height: 1; }
+.sidebar-heading .dim { margin-left: auto; font-size: 9px; }
+.sidebar-groups { padding: 7px 0; }
+.sidebar-group { padding: 0 7px 9px; }
+.sidebar-group-label { display: flex; align-items: center; gap: 7px; padding: 4px 4px 3px; color: var(--text-dim); font-size: 9px; letter-spacing: .16em; }
+.sidebar-rule { height: 1px; flex: 1; background: var(--border); }
+.sidebar-group-market .sidebar-group-label { color: #b7a17d; }
+.sidebar-group-research .sidebar-group-label { color: var(--amber); }
+.sidebar-group-workspace .sidebar-group-label { color: #8e9bb0; }
+.sidebar-item { width: 100%; border: 1px solid transparent; background: transparent; color: var(--text); text-align: left; padding: 7px 7px; display: flex; justify-content: space-between; align-items: center; font: inherit; font-size: 10px; letter-spacing: .04em; cursor: pointer; border-radius: 2px; }
+.sidebar-item:hover { background: #171717; border-color: var(--border); color: var(--amber); }
+.sidebar-shortcut { color: var(--text-dim); font-size: 9px; }
+.sidebar-item:hover .sidebar-shortcut { color: var(--amber-dim); }
+
 .panel-title {
   background: var(--panel-2);
   border-bottom: 1px solid var(--border);
   color: var(--amber);
   font-weight: 700;
   letter-spacing: 0.08em;
-  padding: 3px 8px;
+  padding: 5px 9px;
   font-size: 11px;
   text-transform: uppercase;
   display: flex;
@@ -61,6 +95,7 @@ body {
   user-select: none;
   flex-shrink: 0;
 }
+.panel-title > span:first-child::before { content: ""; display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: var(--amber); margin: 0 7px 1px 0; box-shadow: 0 0 7px rgba(255,153,0,.45); }
 
 .up {
   color: var(--up);

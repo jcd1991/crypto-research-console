@@ -20,8 +20,6 @@ import CalendarWidget from "./widgets/CalendarWidget";
 import InsiderWidget from "./widgets/InsiderWidget";
 import TvWidget from "./widgets/TvWidget";
 import RecapWidget from "./widgets/RecapWidget";
-import CryptoRegimeWidget from "./widgets/CryptoRegimeWidget";
-import StrategyLabWidget from "./widgets/StrategyLabWidget";
 import DerivativesWidget from "./widgets/DerivativesWidget";
 import FundamentalsWidget from "./widgets/FundamentalsWidget";
 import ResearchWidget from "./widgets/ResearchWidget";
@@ -46,8 +44,6 @@ function WidgetBody({ widget }: { widget: WidgetInstance }) {
     case "insider": return <InsiderWidget widget={widget} />;
     case "tv": return <TvWidget />;
     case "recap": return <RecapWidget />;
-    case "crypto-regime": return <CryptoRegimeWidget />;
-    case "strategy-lab": return <StrategyLabWidget />;
     case "derivatives": return <DerivativesWidget widget={widget} />;
     case "fundamentals": return <FundamentalsWidget />;
     case "research": return <ResearchWidget />;
@@ -106,7 +102,6 @@ const TITLES: Record<string, string> = {
   heatmap: "Heatmap", screener: "Screener", crypto: "Crypto",
   macro: "Macro / Indexes", options: "Option Chain", portfolio: "Portfolio", ai: "AI Assistant",
   calendar: "Calendar", insider: "Insider Transactions", tv: "Live TV", recap: "Market Recap",
-  "crypto-regime": "Crypto Regime", "strategy-lab": "Strategy Lab",
   derivatives: "Perpetual Positioning",
   fundamentals: "Protocol Fundamentals", research: "Research Notebook",
   intel: "Flows / On-chain / Governance",

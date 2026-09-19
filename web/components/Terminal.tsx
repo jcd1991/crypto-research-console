@@ -26,8 +26,6 @@ export default function Terminal() {
           "4": () => addWidget("derivatives"),
           "5": () => addWidget("news"),
           "6": () => addWidget("watchlist"),
-          "7": () => addWidget("crypto-regime"),
-          "8": () => addWidget("strategy-lab"),
           "9": () => addWidget("ai"),
         };
         const fn = map[e.key];

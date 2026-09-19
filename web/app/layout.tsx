@@ -4,7 +4,7 @@ import Providers from "./providers";
 
 export const metadata: Metadata = {
   title: "Crypto Market Terminal",
-  description: "Crypto market terminal with reference data, Freqtrade monitoring, and optional research artifacts",
+  description: "Crypto market terminal for venue-aware research, fundamentals, intelligence, and read-only wallet context",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

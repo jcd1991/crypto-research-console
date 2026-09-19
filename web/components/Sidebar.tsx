@@ -2,20 +2,24 @@
 
 import { useTerminal, type WidgetType } from "../store/terminal";
 
-const ITEMS: Array<{ type: WidgetType; label: string; key: string }> = [
-  { type: "chart", label: "CHART", key: "⌥1" },
-  { type: "quote", label: "QUOTE", key: "⌥2" },
-  { type: "crypto", label: "MARKET BOARD", key: "⌥3" },
-  { type: "derivatives", label: "PERP POSITIONING", key: "⌥4" },
-  { type: "fundamentals", label: "FUNDAMENTALS", key: "" },
-  { type: "research", label: "RESEARCH INBOX", key: "" },
-  { type: "intel", label: "INTELLIGENCE", key: "" },
-  { type: "news", label: "CATALYSTS / NEWS", key: "⌥5" },
-  { type: "watchlist", label: "WATCHLIST", key: "⌥6" },
-  { type: "crypto-regime", label: "REGIME", key: "⌥7" },
-  { type: "strategy-lab", label: "STRATEGY LAB", key: "⌥8" },
-  { type: "ai", label: "AI ASSIST", key: "⌥9" },
-  { type: "portfolio", label: "PORTFOLIO / RISK", key: "" },
+const GROUPS: Array<{ label: string; tone: string; items: Array<{ type: WidgetType; label: string; key: string }> }> = [
+  { label: "MARKET", tone: "sidebar-group-market", items: [
+    { type: "chart", label: "CHART", key: "⌥1" },
+    { type: "quote", label: "QUOTE", key: "⌥2" },
+    { type: "crypto", label: "MARKET BOARD", key: "⌥3" },
+    { type: "derivatives", label: "PERP POSITIONING", key: "⌥4" },
+    { type: "watchlist", label: "WATCHLIST", key: "⌥6" },
+    { type: "news", label: "CATALYSTS / NEWS", key: "⌥5" },
+  ] },
+  { label: "RESEARCH", tone: "sidebar-group-research", items: [
+    { type: "fundamentals", label: "FUNDAMENTALS", key: "" },
+    { type: "intel", label: "INTELLIGENCE", key: "" },
+    { type: "research", label: "NOTEBOOK / INBOX", key: "" },
+  ] },
+  { label: "WORKSPACE", tone: "sidebar-group-workspace", items: [
+    { type: "portfolio", label: "PORTFOLIO / RISK", key: "" },
+    { type: "ai", label: "AI ASSIST", key: "⌥9" },
+  ] },
 ];
 
 export default function Sidebar() {
@@ -23,20 +27,16 @@ export default function Sidebar() {
   const resetWorkspace = useTerminal((s) => s.resetWorkspace);
 
   return (
-    <nav className="w-32 bg-[var(--panel)] border-r border-[var(--border)] flex flex-col shrink-0">
-      <div className="dim px-2 py-1 text-[10px] uppercase tracking-wider border-b border-[var(--border)]">
-        Add widget
+    <nav className="sidebar-shell">
+      <div className="sidebar-heading"><span className="sidebar-mark">+</span><span>ADD WIDGET</span><span className="dim">⌘K</span></div>
+      <div className="sidebar-groups">
+        {GROUPS.map((group) => <section key={group.label} className={`sidebar-group ${group.tone}`}>
+          <div className="sidebar-group-label"><span>{group.label}</span><span className="sidebar-rule" /></div>
+          {group.items.map((item) => <button key={item.type} onClick={() => addWidget(item.type)} className="sidebar-item">
+            <span>{item.label}</span><span className="sidebar-shortcut">{item.key}</span>
+          </button>)}
+        </section>)}
       </div>
-      {ITEMS.map((item) => (
-        <button
-          key={item.type}
-          onClick={() => addWidget(item.type)}
-          className="text-left px-2 py-1.5 text-[11px] hover:bg-[#1a1a1a] hover:text-[var(--amber)] flex justify-between"
-        >
-          <span>{item.label}</span>
-          <span className="dim text-[9px]">{item.key}</span>
-        </button>
-      ))}
       <div className="mt-auto border-t border-[var(--border)]">
         <button
           onClick={resetWorkspace}

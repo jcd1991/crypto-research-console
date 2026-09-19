@@ -2,7 +2,7 @@
 
 # Crypto Market Terminal
 
-**A local crypto research terminal for spot markets, perpetual positioning, catalysts, regimes, strategy runs, and risk.**
+**A local crypto research terminal for spot markets, perpetual positioning, catalysts, fundamentals, wallets, and risk.**
 
 Dark. Dense. Keyboard‑driven. Zero paid API keys, zero subscriptions.
 
@@ -25,9 +25,9 @@ Dark. Dense. Keyboard‑driven. Zero paid API keys, zero subscriptions.
 
 ## Scope
 
-Crypto market data, derivatives positioning, catalysts, and strategy evidence are often split across several dashboards. This project narrows OpenTerminal to one job: a local, read-only crypto research workspace. The default workflow connects spot prices and candles with perpetual funding, mark/index basis, open interest, news, Market Behavior Lab runs, regimes, trades, and risk.
+Crypto market data, derivatives positioning, catalysts, and protocol evidence are often split across several dashboards. This project narrows OpenTerminal to one job: a local, read-only crypto research workspace. The default workflow connects spot prices and candles with perpetual funding, mark/index basis, open interest, news, fundamentals, wallet context, and risk.
 
-It is not an order-entry system, equity terminal, token recommendation engine, or claim of profitable trading performance. Provider and venue labels stay visible because a reference price, a Binance perpetual snapshot, and a Freqtrade result are different kinds of evidence and must not be silently blended.
+It is not an order-entry system, equity terminal, token recommendation engine, or claim of profitable trading performance. Provider and venue labels stay visible because a reference price, a Binance perpetual snapshot, and a wallet holdings observation are different kinds of evidence and must not be silently blended.
 
 No signup. No credit card. No rate‑limited demo tier. Clone it, `npm install`, and you have a live terminal in under a minute.
 
@@ -45,8 +45,6 @@ No signup. No credit card. No rate‑limited demo tier. Clone it, `npm install`,
 - ⚡ **Market intelligence adapters** — Binance/Bybit liquidation collectors with Binance REST warm-backfill and connection status, Binance/Bybit/Hyperliquid/OKX order-book depth, public stablecoin supply, ETF flow provenance and confidence, Coin Metrics Community daily series, Snapshot governance proposals, read-only Ethereum Research Wallet holdings/follows via Blockscout, curated wallet labels, and source-required unlock records
 - 📰 **News feed** — aggregated and de‑duplicated from multiple RSS sources, per‑symbol or global
 - 🪙 **Crypto board** — top assets with 7‑day sparklines, BTC/ETH dominance, and full OHLCV charting for any listed coin
-- 🧭 **Crypto regime dashboard** — inspect exported regimes, confidence, PnL, and drawdown in UTC/24×7 time
-- 🧪 **Strategy run console** — inspect Market Behavior Lab artifacts without embedding Python or Freqtrade
 - 💼 **Portfolio tracker** — log buy/sell transactions, track average cost, realized & unrealized P&L (persisted in SQLite)
 - 🤖 **AI assistant** (optional) — ask questions about the symbol you're looking at, powered by Claude, fully context‑aware of the terminal's current data
 - ⚡ **Frequent local refreshes** — research panels poll on bounded intervals and use cached provider fallbacks instead of pretending to be a tick-perfect execution feed
@@ -96,8 +94,6 @@ The core workspace requires no paid market-data key. Reference quotes and candle
 | On-chain history | Coin Metrics Community API | — |
 | Governance | Snapshot Hub GraphQL | — |
 | News | Yahoo Finance RSS | Google News RSS |
-| Freqtrade execution truth | Market Behavior Lab artifacts | — |
-| Freqtrade monitor | Localhost read-only REST adapter | — |
 
 > ⚠️ These are public endpoints, not officially licensed data feeds — treat prices as delayed/indicative, not execution‑grade. See [`server/src/providers/`](server/src/providers) — each provider is a small, isolated module, so swapping or adding a data source is a 30‑minute job.
 
@@ -129,24 +125,6 @@ npm run dev
 - API health → **http://localhost:4000/api/status**
 
 That's it — no `.env` file required to get a fully working terminal.
-
-### Optional Market Behavior Lab connector
-
-This optional connector reads exported runs from
-[Market Behavior Lab](https://github.com/jcd1991/market-behavior-lab). The lab
-exports normalized Freqtrade artifacts; this console reads them without
-embedding Python or Freqtrade in the TypeScript UI.
-
-```bash
-cp .env.example .env
-export LAB_ARTIFACT_ROOT=/absolute/path/to/market-behavior-lab/research/runs
-npm run dev
-```
-
-The Crypto Regime and Strategy Lab panels use UTC and 24/7 market semantics,
-preserve spot/perpetual pair syntax, and display source badges. The optional
-Freqtrade monitor is localhost-only and read-only. See
-[`docs/market-behavior-lab.md`](docs/market-behavior-lab.md).
 
 ### Optional: AI assistant
 
@@ -219,8 +197,7 @@ The terminal is organized around the questions a crypto analyst needs to answer 
 2. **Positioning:** perpetual mark/index basis, funding, open interest, venue-specific liquidity, and liquidation coverage.
 3. **Catalysts:** asset-specific and market-wide news, governance, unlocks, stablecoin/ETF flows, and timestamps.
 4. **Wallet context:** compare a public research wallet's holdings with the asset/protocol thesis; treat labels and inferred intent as hypotheses.
-5. **Evidence:** a reproducible Market Behavior Lab run with its venue, date window, configuration, trades, drawdown, and provenance.
-6. **Risk:** portfolio exposure and the difference between reference data, research artifacts, and execution truth.
+5. **Risk:** portfolio exposure and the difference between reference data, research artifacts, and execution truth.
 
 This prioritization follows the structure of current institutional crypto markets: spot, fixed-term futures, perpetuals, options, ETPs, and on-chain protocols coexist, while perpetuals remain a major center of activity. See Coinbase Institutional's [Guide to Crypto Markets 2026](https://www.coinbase.com/institutional/research-insights/resources/guides/guide-to-crypto-markets-2026), the [Coin Metrics market-data taxonomy](https://docs.coinmetrics.io/market-data), and Binance's documentation for [funding](https://www.binance.com/en/support/faq/detail/360033525031) and [mark price](https://www.binance.com/en/support/faq/detail/360033525271).
 
@@ -236,7 +213,7 @@ The open-source roadmap is therefore complementary rather than a claim of featur
 
 This repository began as a fork of [ErTasselli/OpenTerminal](https://github.com/ErTasselli/OpenTerminal). The retained upstream foundation includes the Next.js/Express workspace, draggable widget grid, keyboard-driven command palette, charting and indicator layer, local portfolio storage, provider registry, caching, and much of the original visual system.
 
-The downstream work changes the product boundary to crypto: crypto-only discovery and defaults, 24/7 semantics, spot/reference fallbacks, perpetual positioning, Market Behavior Lab artifact readers, crypto regimes, venue/provenance labels, and removal of equity-first panels from the supported interface. Some upstream equity provider modules remain in the source history for comparison and future cleanup, but they are not part of the supported crypto-terminal workflow.
+The downstream work changes the product boundary to crypto: crypto-only discovery and defaults, 24/7 semantics, spot/reference fallbacks, perpetual positioning, protocol fundamentals, wallet context, venue/provenance labels, and removal of equity-first and legacy analysis panels from the supported interface. Some upstream modules may remain in repository history for comparison, but they are not part of the supported crypto-terminal workflow.
 
 OpenTerminal's copyright notice and MIT terms are preserved in [`LICENSE`](LICENSE). Upstream deserves credit for the terminal architecture; downstream crypto-specific changes and any defects in them belong to this repository. Neither project endorses the other.
 
@@ -281,11 +258,8 @@ Please open an issue first for anything non‑trivial so we can align on approac
 
 For personal and educational use only. Market data comes from public endpoints and may be delayed, incomplete, or occasionally wrong — **do not use this for real investment decisions**.
 
-This repository is a crypto terminal fork, not the strategy research repository.
-Strategies, feature engineering, backtests, and research experiments belong in
-[Market Behavior Lab](https://github.com/jcd1991/market-behavior-lab). This
-console only visualizes exported artifacts and optionally monitors a local
-Freqtrade instance through read-only endpoints.
+This repository is a crypto terminal fork focused on live research context. It
+does not place orders or claim to replace a backtesting or execution system.
 
 This project is not affiliated with, endorsed by, or sponsored by any of the data providers it connects to. It does not host or redistribute data to third parties — it's source code you run yourself, fetching data directly from the provider. Respect the terms of service of the underlying data providers; most free sources are licensed for personal/research use only and prohibit commercial redistribution.
 

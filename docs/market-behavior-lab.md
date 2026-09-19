@@ -1,8 +1,19 @@
-# Market Behavior Lab integration
+# Optional Market Behavior Lab connector
 
-This repository adds a read-only crypto research console to OpenTerminal. It
-does not contain Freqtrade, exchange credentials, or a live trading control
-path.
+This repository is a crypto-focused OpenTerminal fork. It does not contain
+Freqtrade, strategy implementations, feature engineering, exchange
+credentials, or a live trading control path. Market Behavior Lab is an
+optional external research engine; this connector only reads its normalized
+artifacts and can monitor a local Freqtrade instance through read-only API
+calls.
+
+The boundary is intentional:
+
+| Repository | Responsibility |
+| --- | --- |
+| `market-behavior-lab` | Strategies, research features, backtests, evaluation, and artifact generation |
+| Upstream Freqtrade | Exchange data, execution simulation, backtesting, and bot runtime |
+| `crypto-research-console` | Crypto UI, reference feeds, artifact display, and read-only local monitoring |
 
 ## Local setup
 

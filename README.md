@@ -1,8 +1,8 @@
 <div align="center">
 
-# Crypto Research Console
+# Crypto Market Terminal
 
-**An OpenTerminal-derived workspace for inspecting crypto strategy research, regimes, trades, and risk.**
+**A crypto-focused OpenTerminal fork for market data, execution-aware research views, regimes, trades, and risk.**
 
 Dark. Dense. Keyboard‑driven. Zero paid API keys, zero subscriptions.
 
@@ -11,11 +11,11 @@ Dark. Dense. Keyboard‑driven. Zero paid API keys, zero subscriptions.
 [![No API Key Required](https://img.shields.io/badge/data-no%20API%20key%20required-brightgreen)](#data-sources)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-ff69b4.svg)](#contributing)
 
-<a href="https://trendshift.io/repositories/215916?utm_source=trendshift-badge&utm_medium=badge&utm_campaign=badge-trendshift-215916" target="_blank" rel="noopener noreferrer"><img src="https://trendshift.io/api/badge/trendshift/repositories/215916/daily?language=TypeScript" alt="ErTasselli%2FOpenTerminal | Trendshift" width="250" height="55"/></a>
+<sub>Derived from <a href="https://github.com/ErTasselli/OpenTerminal">OpenTerminal</a>; crypto-specific UI and adapters are maintained here.</sub>
 
 <br/>
 
-<img src="docs/screenshots/dashboard.png" alt="OpenTerminal dashboard — live chart, quote panel, watchlist, news and macro indexes" width="100%" />
+<img src="docs/screenshots/dashboard.png" alt="Crypto terminal dashboard — live chart, quote panel, watchlist, crypto board, and research panels" width="100%" />
 
 <sub>⭐ If this is useful to you, consider starring the repo — it genuinely helps other people find it.</sub>
 
@@ -23,11 +23,11 @@ Dark. Dense. Keyboard‑driven. Zero paid API keys, zero subscriptions.
 
 <br/>
 
-## Why this console?
+## Why this terminal?
 
-Real trading terminals cost **$2,000+ a month**. Most retail dashboards either lock the good stuff behind a paywall or run on a single flaky data source that breaks the moment you actually need it.
+Crypto market data, exchange monitoring, and research tooling are often split across several dashboards. This fork puts the crypto workflow first: quotes, candles, watchlists, reference market data, Freqtrade runs, regimes, trades, and risk in one local terminal.
 
-OpenTerminal takes a different approach: it stitches together several **free, publicly documented (or reverse‑engineered but widely used) market data endpoints** — the same ones that power major finance sites' own front ends — into one fast, keyboard‑first, widget‑based dashboard that runs entirely on your machine. Every data endpoint has an automatic fallback chain, so a single provider hiccup never takes the whole app down.
+It retains OpenTerminal's fast, keyboard-first, widget-based architecture while narrowing the supported product story to crypto. Provider fallbacks are explicit and source badges distinguish reference prices from execution-grade research artifacts.
 
 No signup. No credit card. No rate‑limited demo tier. Clone it, `npm install`, and you have a live terminal in under a minute.
 
@@ -36,17 +36,14 @@ No signup. No credit card. No rate‑limited demo tier. Clone it, `npm install`,
 ## ✨ Features
 
 - 🖥️ **Widget-based workspace** — drag, resize, add, and remove panels (`react-grid-layout`); your layout is saved locally and restored on reload
-- ⌘K **global command palette** — instantly search stocks, ETFs, and crypto and jump straight to them
+- ⌘K **global command palette** — search supported crypto assets and jump straight to them
 - 📈 **Professional charting** (via [`lightweight-charts`](https://github.com/tradingview/lightweight-charts)) — candlesticks, bars, line, area, volume, 8 timeframes (1D → MAX), and SMA / EMA / VWAP / Bollinger Bands / RSI / MACD indicators, each with a live hover legend showing OHLC, volume, and every active indicator's value under your cursor
-- 💹 **Quote panel** — last / bid / ask / OHLC, volume, market cap, P/E, EPS, dividend yield, 52‑week range, beta, shares outstanding
+- 💹 **Crypto quote panel** — last / bid / ask / OHLC, volume, market cap, and venue/source status
 - 📰 **News feed** — aggregated and de‑duplicated from multiple RSS sources, per‑symbol or global
-- 🔎 **Full‑market screener** — filter by sector, market cap, % change, and volume across the entire US equity market, sortable on every column
-- 🗺️ **Live sector heatmap** — treemap sized by market cap, colored by daily % change, refreshing every few seconds
-- ⛓️ **Options chain** — calls and puts side‑by‑side with strike, bid/ask, volume, open interest, and ITM highlighting
 - 🪙 **Crypto board** — top assets with 7‑day sparklines, BTC/ETH dominance, and full OHLCV charting for any listed coin
-- 🏦 **Macro dashboard** — live US Treasury yield curve, VIX, and major index/commodity proxies
+- 🧭 **Crypto regime dashboard** — inspect exported regimes, confidence, PnL, and drawdown in UTC/24×7 time
+- 🧪 **Strategy run console** — inspect Market Behavior Lab artifacts without embedding Python or Freqtrade
 - 💼 **Portfolio tracker** — log buy/sell transactions, track average cost, realized & unrealized P&L (persisted in SQLite)
-- 📅 **Calendar** — economic events (Fed, ECB, CPI, NFP and more) with consensus forecast, previous reading and, for the major US/EU releases, the actual outcome; plus a per‑watchlist earnings calendar with click‑through history showing forecast vs. actual EPS for the last several quarters and the stock's next‑day price move
 - 🤖 **AI assistant** (optional) — ask questions about the symbol you're looking at, powered by Claude, fully context‑aware of the terminal's current data
 - ⚡ **Near real‑time updates** — quotes and indexes refresh every second with a subtle flash on change, so you always know what just moved
 - ⌨️ **Keyboard shortcuts** everywhere — `⌘K` to search, `⌥1`–`⌥9` to add any widget
@@ -63,17 +60,9 @@ Candlesticks, bars, line, or area — 8 timeframes, six technical indicators, an
 
 <br/>
 
-### Live sector heatmap
-
-The whole US equity market as a treemap — sized by market cap, colored by daily % change, refreshing every few seconds so nothing you're watching ever goes stale.
-
-<img src="docs/screenshots/heatmap.png" alt="Live sector heatmap of the US equity market" width="100%" />
-
-<br/>
-
 ### Crypto
 
-Top assets with 7‑day sparklines and BTC/ETH dominance — click through to full OHLCV candlestick charting for any listed coin, same charting engine as stocks.
+Top assets with 7‑day sparklines and BTC/ETH dominance — click through to full OHLCV candlestick charting for any listed coin.
 
 <img src="docs/screenshots/crypto.png" alt="Crypto board with sparklines and dominance" width="100%" />
 
@@ -93,20 +82,11 @@ No paid API, no keys, and no single point of failure — every endpoint has a fa
 
 | Data | Primary source | Fallback |
 |---|---|---|
-| Quotes (stocks/ETFs) | Nasdaq public quote API | Yahoo Finance → Stooq |
-| Fundamentals (P/E, EPS, beta, div yield) | TradingView scanner API | — |
-| Historical candles | Nasdaq chart API | Yahoo Finance → Stooq |
-| Symbol search | TradingView symbol search | Yahoo Finance |
-| Full‑market screener / heatmap | TradingView scanner API (live, whole US market) | — |
-| Options chain | Nasdaq option‑chain API | Yahoo Finance |
-| News | Yahoo Finance RSS | Google News RSS |
 | Crypto quotes & board | CoinGecko | Binance public API |
-| Crypto candles | Binance public API (klines) | — |
-| Macro (Treasury yields, VIX) | FRED (Federal Reserve) | — |
-| Economic calendar (schedule, forecast, previous) | Forex Factory public feed | — |
-| Economic calendar (actual — Fed / ECB / CPI / NFP only) | FRED (Federal Reserve) | — |
-| Earnings calendar (next/last date, EPS estimate) | TradingView scanner API | — |
-| Earnings history (forecast vs. actual, surprise %) | Nasdaq earnings‑surprise API | — |
+| Crypto candles | Binance public API (klines) | Coinbase reference |
+| News | Yahoo Finance RSS | Google News RSS |
+| Freqtrade execution truth | Market Behavior Lab artifacts | — |
+| Freqtrade monitor | Localhost read-only REST adapter | — |
 
 > ⚠️ These are public endpoints, not officially licensed data feeds — treat prices as delayed/indicative, not execution‑grade. See [`server/src/providers/`](server/src/providers) — each provider is a small, isolated module, so swapping or adding a data source is a 30‑minute job.
 
@@ -126,9 +106,9 @@ npm run dev
 
 That's it — no `.env` file required to get a fully working terminal.
 
-### Market Behavior Lab
+### Optional Market Behavior Lab connector
 
-This public companion adds a read-only research lane for
+This optional connector reads exported runs from
 [Market Behavior Lab](https://github.com/jcd1991/market-behavior-lab). The lab
 exports normalized Freqtrade artifacts; this console reads them without
 embedding Python or Freqtrade in the TypeScript UI.
@@ -187,15 +167,15 @@ Portfolio data persists in the `terminal-data` volume (SQLite, WAL mode). Ports 
 ## 📁 Project structure
 
 ```
-├── server/                  # Express + TypeScript API
+├── server/                  # Express + TypeScript crypto API
 │   └── src/
-│       ├── providers/       # nasdaq, tradingview, yahoo, stooq, fred, econcalendar, coingecko, binance, news
-│       ├── routes/          # market, portfolio, ai
+│       ├── providers/       # crypto reference feeds and optional Freqtrade adapter
+│       ├── routes/          # crypto market, portfolio, AI, optional lab adapter
 │       ├── cache.ts         # TTL cache with stale-while-revalidate fallback
 │       └── db.ts            # SQLite (better-sqlite3, WAL)
 └── web/                      # Next.js 15 + React 19 + Tailwind 4
     ├── components/           # TopBar, Sidebar, Workspace, CommandPalette
-    ├── components/widgets/   # Chart, Quote, Watchlist, News, Screener, Heatmap, Crypto, Options, Macro, Portfolio, Calendar, AI
+    ├── components/widgets/   # Chart, Quote, Watchlist, Crypto, Regime, Strategy Lab, News, Risk
     ├── lib/                  # API client, technical indicators
     └── store/                # Zustand store (workspace layout, persisted)
 ```
@@ -207,7 +187,6 @@ Run tests with `npm test` (Vitest, no network calls). CI runs on every push — 
 ## 🗺️ Roadmap
 
 - [ ] Chart drawing tools & multi‑asset comparison overlay
-- [ ] Black‑Scholes Greeks on the options chain
 - [ ] Price alerts with desktop notifications
 - [ ] PostgreSQL as an alternative to SQLite
 
@@ -236,6 +215,12 @@ Please open an issue first for anything non‑trivial so we can align on approac
 ## ⚖️ Disclaimer
 
 For personal and educational use only. Market data comes from public endpoints and may be delayed, incomplete, or occasionally wrong — **do not use this for real investment decisions**.
+
+This repository is a crypto terminal fork, not the strategy research repository.
+Strategies, feature engineering, backtests, and research experiments belong in
+[Market Behavior Lab](https://github.com/jcd1991/market-behavior-lab). This
+console only visualizes exported artifacts and optionally monitors a local
+Freqtrade instance through read-only endpoints.
 
 This project is not affiliated with, endorsed by, or sponsored by any of the data providers it connects to. It does not host or redistribute data to third parties — it's source code you run yourself, fetching data directly from the provider. Respect the terms of service of the underlying data providers; most free sources are licensed for personal/research use only and prohibit commercial redistribution.
 

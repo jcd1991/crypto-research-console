@@ -3,8 +3,8 @@ import "./globals.css";
 import Providers from "./providers";
 
 export const metadata: Metadata = {
-  title: "Crypto Research Console",
-  description: "Bloomberg-style financial terminal on free data sources",
+  title: "Crypto Market Terminal",
+  description: "Crypto market terminal with reference data, Freqtrade monitoring, and optional research artifacts",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

@@ -60,8 +60,8 @@ const DEFAULT_WIDGETS: WidgetInstance[] = [
   { id: "w-chart", type: "chart", linked: true },
   { id: "w-quote", type: "quote", linked: true },
   { id: "w-watchlist", type: "watchlist", linked: false },
+  { id: "w-crypto", type: "crypto", linked: false },
   { id: "w-news", type: "news", linked: true },
-  { id: "w-macro", type: "macro", linked: false },
   { id: "w-regime", type: "crypto-regime", linked: false },
   { id: "w-strategy-lab", type: "strategy-lab", linked: false },
 ];
@@ -73,10 +73,10 @@ const DEFAULT_LAYOUT: LayoutItem[] = [
   { i: "w-chart", x: 0, y: 0, w: 7, h: 12 },
   { i: "w-quote", x: 7, y: 0, w: 5, h: 6 },
   { i: "w-watchlist", x: 7, y: 6, w: 5, h: 6 },
-  { i: "w-news", x: 0, y: 12, w: 7, h: 7 },
-  { i: "w-macro", x: 7, y: 12, w: 5, h: 7 },
-  { i: "w-regime", x: 0, y: 19, w: 6, h: 9 },
-  { i: "w-strategy-lab", x: 6, y: 19, w: 6, h: 12 },
+  { i: "w-crypto", x: 0, y: 12, w: 6, h: 9 },
+  { i: "w-news", x: 6, y: 12, w: 6, h: 9 },
+  { i: "w-regime", x: 0, y: 21, w: 6, h: 9 },
+  { i: "w-strategy-lab", x: 6, y: 21, w: 6, h: 12 },
 ];
 
 const SIZE_BY_TYPE: Record<WidgetType, { w: number; h: number }> = {
@@ -142,8 +142,17 @@ export const useTerminal = create<TerminalState>()(
     }),
     {
       name: "crypto-research-console-workspace",
-      version: 2,
+      version: 3,
       migrate: (persisted, version) => {
+        if (version < 3 && persisted && typeof persisted === "object") {
+          return {
+            ...(persisted as Record<string, unknown>),
+            activeSymbol: DEFAULT_ACTIVE_SYMBOL,
+            widgets: DEFAULT_WIDGETS,
+            layout: DEFAULT_LAYOUT,
+            watchlist: DEFAULT_WATCHLIST,
+          };
+        }
         if (version < 2 && persisted && typeof persisted === "object") {
           return {
             ...(persisted as Record<string, unknown>),

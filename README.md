@@ -219,6 +219,38 @@ OpenTerminal's copyright notice and MIT terms are preserved in [`LICENSE`](LICEN
 
 <br/>
 
+## Upstream differences and staying current
+
+This is a focused downstream product, not a drop-in OpenTerminal distribution. OpenTerminal provides the general terminal shell and interaction model; this repository intentionally narrows the supported workflow to crypto research. That means crypto-first symbols and defaults, 24/7 market semantics, venue-separated perpetual data, protocol fundamentals, liquidation and liquidity context, public wallet research, governance and unlock evidence, provenance badges, and an immutable research notebook. Equity-first panels and the former regime/strategy lab are not part of this console's supported interface.
+
+The fork remains able to receive upstream improvements. The remotes are deliberately separated:
+
+- `github` is the writable downstream repository (`jcd1991/crypto-research-console`).
+- `upstream` is the fetch-only source repository (`ErTasselli/OpenTerminal`).
+
+Review upstream changes before adopting them; do not merge `upstream/main` directly into the crypto product without checking whether a change reintroduces equity assumptions, execution behavior, unlabeled provider fallbacks, or the removed legacy panels. A safe sync looks like:
+
+```bash
+git fetch upstream --prune
+git switch -c upstream-sync/$(date +%Y-%m-%d) main
+git log --oneline main..upstream/main
+git diff --stat main...upstream/main
+# Select the compatible commits, or resolve a reviewed merge:
+git cherry-pick <upstream-commit>
+# or: git merge --no-ff upstream/main
+npm test
+npm run lint
+npm run build
+git diff --check
+git push github upstream-sync/$(date +%Y-%m-%d)
+```
+
+Prefer small, reviewable cherry-picks for shared shell, accessibility, dependency, and resilience fixes. Keep crypto adapters, research schemas, provenance rules, and crypto-specific tests in this repository when conflicts occur. If an upstream change is useful but changes product meaning, adapt it in a separate commit rather than importing it unchanged. Delete the temporary sync branch after the reviewed changes are merged into `main`.
+
+For a fresh clone, configure the same separation with `git remote add upstream https://github.com/ErTasselli/OpenTerminal.git`; keep `github` as the push target and treat `upstream` as read-only by convention.
+
+<br/>
+
 ## 🗺️ Roadmap
 
 - [x] Cross-venue perpetual leverage map with normalized symbols, native intervals, contract units, timestamps, and explicit coverage gaps
